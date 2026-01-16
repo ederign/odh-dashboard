@@ -15,6 +15,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.23.3
 	github.com/onsi/gomega v1.36.3
 	github.com/openai/openai-go/v2 v2.7.1
+	github.com/opendatahub-io/mlflow-go v0.0.0-00010101000000-000000000000
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/rs/cors v1.11.1
 	github.com/stretchr/testify v1.10.0
@@ -127,7 +128,7 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20250218202821-56aae31c358a // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250313205543-e70fdf4c4cb4 // indirect
 	google.golang.org/grpc v1.71.0 // indirect
-	google.golang.org/protobuf v1.36.6 // indirect
+	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/evanphx/json-patch.v4 v4.12.0 // indirect
 	gopkg.in/go-playground/validator.v9 v9.31.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
@@ -146,3 +147,6 @@ require (
 
 // Replace the original llama-stack-k8s-operator with the Open Data Hub fork
 replace github.com/llamastack/llama-stack-k8s-operator => github.com/opendatahub-io/llama-stack-k8s-operator v0.0.0-20250918140507-87021371d8f4
+
+// Replace mlflow-go with ederign fork (pending PR merge)
+replace github.com/opendatahub-io/mlflow-go => github.com/ederign/mlflow-go v0.0.0-20260116190152-894e50bed0e4

@@ -47,6 +47,11 @@ const (
 	MaaSModelsPath = ApiPathPrefix + "/maas/models"
 	MaaSTokensPath = ApiPathPrefix + "/maas/tokens"
 
+	// MLFlow Prompt Registry endpoints
+	MLFlowPromptsPath        = ApiPathPrefix + "/mlflow/prompts"
+	MLFlowPromptPath         = ApiPathPrefix + "/mlflow/prompts/:name"
+	MLFlowPromptVersionsPath = ApiPathPrefix + "/mlflow/prompts/:name/versions"
+
 	// Guardrails endpoint (fetched from dashboard namespace like MCP servers)
 	// Returns status of the "custom-guardrails" CR
 	GuardrailsStatusPath = ApiPathPrefix + "/guardrails/status"

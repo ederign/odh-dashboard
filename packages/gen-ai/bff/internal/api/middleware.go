@@ -339,3 +339,43 @@ func (app *App) AttachMaaSClient(next func(http.ResponseWriter, *http.Request, h
 		next(w, r, ps)
 	}
 }
+
+// AttachMLFlowClient middleware creates an MLFlow client and attaches it to the request context.
+// In mock mode, it uses the configured MLFlowURL (defaults to localhost:5000).
+// In real mode (future), it will discover the URL from Kubernetes.
+func (app *App) AttachMLFlowClient(next func(http.ResponseWriter, *http.Request, httprouter.Params)) httprouter.Handle {
+	return func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+		ctx := r.Context()
+		logger := helper.GetContextLoggerFromReq(r)
+
+		var serviceURL string
+
+		if app.config.MockMLFlowClient {
+			// Mock mode: use configured URL (defaults to localhost:5000)
+			serviceURL = app.config.MLFlowURL
+			logger.Debug("Using MLFlow mock mode",
+				"serviceURL", serviceURL)
+		} else {
+			// Real mode: not implemented yet
+			logger.Error("MLFlow real mode not implemented - set MOCK_MLFLOW_CLIENT=true")
+			app.serverErrorResponse(w, r, fmt.Errorf("MLFlow requires mock mode (MOCK_MLFLOW_CLIENT=true)"))
+			return
+		}
+
+		// Create MLFlow client using the factory with resolved URL
+		mlflowClient, err := app.mlflowClientFactory.CreateClient(serviceURL)
+		if err != nil {
+			logger.Error("Failed to create MLFlow client", "error", err)
+			app.serverErrorResponse(w, r, fmt.Errorf("failed to create MLFlow client: %w", err))
+			return
+		}
+
+		logger.Debug("Created MLFlow client", "serviceURL", serviceURL)
+
+		// Attach ready-to-use client to context
+		ctx = context.WithValue(ctx, constants.MLFlowClientKey, mlflowClient)
+		r = r.WithContext(ctx)
+
+		next(w, r, ps)
+	}
+}

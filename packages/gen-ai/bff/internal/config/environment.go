@@ -20,20 +20,24 @@ const (
 
 type EnvConfig struct {
 	// General BFF configuration
-	Port            int
-	StaticAssetsDir string
-	LogLevel        slog.Level
-	AllowedOrigins  []string
-	MockLSClient    bool
-	MockK8sClient   bool
-	MockMCPClient   bool
-	MockMaaSClient  bool
+	Port             int
+	StaticAssetsDir  string
+	LogLevel         slog.Level
+	AllowedOrigins   []string
+	MockLSClient     bool
+	MockK8sClient    bool
+	MockMCPClient    bool
+	MockMaaSClient   bool
+	MockMLFlowClient bool
 
 	// Llama Stack Configuration
 	LlamaStackURL string
 
 	// MaaS (Model as a Service) Configuration
 	MaaSURL string
+
+	// MLFlow Configuration
+	MLFlowURL string
 
 	// Filter models configuration
 	FilteredModelKeywords []string

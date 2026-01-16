@@ -7,6 +7,7 @@ type contextKey string
 const (
 	LlamaStackClientKey contextKey = "LlamaStackClientKey"
 	MaaSClientKey       contextKey = "MaaSClientKey"
+	MLFlowClientKey     contextKey = "MLFlowClientKey"
 
 	TraceIdKey     contextKey = "TraceIdKey"
 	TraceLoggerKey contextKey = "TraceLoggerKey"

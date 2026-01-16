@@ -175,6 +175,40 @@ curl -i -H "Authorization: Bearer $TOKEN" \
      "http://localhost:8080/gen-ai/api/v1/mcp/status?namespace=default&server_url=$SERVER_URL"
 ```
 
+#### Test MLFlow Prompt Registry Endpoints
+
+**Prerequisites:** Start MLFlow server locally on port 5000:
+
+```bash
+mlflow server --port 5000
+```
+
+**List Prompts:**
+
+```bash
+curl -i "http://localhost:8080/gen-ai/api/v1/mlflow/prompts"
+```
+
+**Get Prompt by Name:**
+
+```bash
+curl -i "http://localhost:8080/gen-ai/api/v1/mlflow/prompts/my-prompt"
+```
+
+**List Prompt Versions:**
+
+```bash
+curl -i "http://localhost:8080/gen-ai/api/v1/mlflow/prompts/my-prompt/versions"
+```
+
+**Register New Prompt:**
+
+```bash
+echo '{"name":"my-prompt","template":"Hello {{name}} welcome to {{place}}"}' | \
+  curl -i -X POST "http://localhost:8080/gen-ai/api/v1/mlflow/prompts" \
+       -H "Content-Type: application/json" -d @-
+```
+
 #### Test Authentication (Should Fail)
 
 **Request without token:**
@@ -514,7 +548,31 @@ make run STATIC_ASSETS_DIR=../frontend/dist
 - `MOCK_MAAS_CLIENT=true`: Enables mock MaaS client
 - `MOCK_MAAS_CLIENT=false` (or not set): Uses real MaaS server
 
-#### 6. Combined Mock Mode (All Services)
+#### 6. Mock MLFlow Client
+
+**Start BFF with Mock MLFlow Client:**
+
+```bash
+AUTH_METHOD=user_token \
+AUTH_TOKEN_HEADER=Authorization \
+AUTH_TOKEN_PREFIX="Bearer " \
+MOCK_MLFLOW_CLIENT=true \
+make run STATIC_ASSETS_DIR=../frontend/dist
+```
+
+**Environment Variables:**
+
+- `MOCK_MLFLOW_CLIENT=true`: Enables MLFlow client pointing to localhost:5000
+- `MOCK_MLFLOW_CLIENT=false` (or not set): MLFlow integration disabled (K8s discovery not yet implemented)
+- `MLFLOW_URL=http://localhost:5000`: Override MLFlow server URL (defaults to localhost:5000)
+
+**Note:** MLFlow mock mode requires a real MLFlow server running locally. Start one with:
+
+```bash
+mlflow server --port 5000
+```
+
+#### 7. Combined Mock Mode (All Services)
 
 **Start BFF with All Mock Clients:**
 
@@ -527,6 +585,7 @@ MOCK_K8S_CLIENT=true \
 MOCK_LS_CLIENT=true \
 MOCK_MCP_CLIENT=true \
 MOCK_MAAS_CLIENT=true \
+MOCK_MLFLOW_CLIENT=true \
 make run STATIC_ASSETS_DIR=../frontend/dist
 ```
 
@@ -947,7 +1006,7 @@ HTTP/1.1 204 No Content
 2. **Still Getting Real Data:**
 
    - Verify environment variables are set correctly
-   - Check BFF startup logs for "Using mocked Kubernetes client", "Using mock LlamaStack client", "Using mocked MCP client", or "Using mock MaaS client factory"
+   - Check BFF startup logs for "Using mocked Kubernetes client", "Using mock LlamaStack client", "Using mocked MCP client", "Using mock MaaS client factory", or "Initialized MLFlow client factory"
    - Restart BFF after changing mock settings
 
 3. **Mock Data Not Matching Expected:**
@@ -965,3 +1024,4 @@ HTTP/1.1 204 No Content
 - **LS Mock Data:** `internal/integrations/llamastack/lsmocks/`
 - **MCP Mock Data:** `internal/integrations/mcp/mcpmocks/`
 - **MaaS Mock Data:** `internal/integrations/maas/maasmocks/`
+- **MLFlow:** Uses real mlflow-go SDK pointing to localhost:5000 (no mock data)

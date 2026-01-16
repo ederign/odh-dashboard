@@ -28,8 +28,8 @@ dev-install-dependencies: ## Install dependencies for frontend
 	cd frontend && npm install
 
 .PHONY: dev-bff-mock
-dev-bff-mock: ## Run BFF with all mocks enabled (K8s, LlamaStack, MaaS, MCP)
-	cd bff && make run LOG_LEVEL=debug MOCK_LS_CLIENT=true MOCK_K8S_CLIENT=true MOCK_MAAS_CLIENT=true MOCK_MCP_CLIENT=true AUTH_TOKEN=FAKE_BEARER_TOKEN
+dev-bff-mock: ## Run BFF with all mocks enabled (K8s, LlamaStack, MaaS, MCP, MLFlow)
+	cd bff && make run LOG_LEVEL=debug MOCK_LS_CLIENT=true MOCK_K8S_CLIENT=true MOCK_MAAS_CLIENT=true MOCK_MCP_CLIENT=true MOCK_MLFLOW_CLIENT=true AUTH_TOKEN=FAKE_BEARER_TOKEN
 
 .PHONY: dev-bff
 dev-bff:

@@ -20,6 +20,7 @@ import (
 
 	"github.com/opendatahub-io/gen-ai/internal/integrations/mcp"
 	"github.com/opendatahub-io/gen-ai/internal/integrations/mcp/mcpmocks"
+	"github.com/opendatahub-io/gen-ai/internal/integrations/mlflow"
 
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
@@ -41,6 +42,7 @@ type App struct {
 	llamaStackClientFactory llamastack.LlamaStackClientFactory
 	maasClientFactory       maas.MaaSClientFactory
 	mcpClientFactory        mcp.MCPClientFactory
+	mlflowClientFactory     mlflow.MLFlowClientFactory
 	dashboardNamespace      string
 	memoryStore             cache.MemoryStore
 	rootCAs                 *x509.CertPool
@@ -158,6 +160,10 @@ func NewApp(cfg config.EnvConfig, logger *slog.Logger) (*App, error) {
 		}
 	}
 
+	// Initialize MLFlow client factory
+	mlflowFactory := mlflow.NewRealClientFactory()
+	logger.Info("Initialized MLFlow client factory")
+
 	// Initialize shared memory store for caching (10 minute cleanup interval)
 	memStore := cache.NewMemoryStore()
 	logger.Debug("Initialized shared memory store")
@@ -186,6 +192,7 @@ func NewApp(cfg config.EnvConfig, logger *slog.Logger) (*App, error) {
 		llamaStackClientFactory: llamaStackClientFactory,
 		maasClientFactory:       maasClientFactory,
 		mcpClientFactory:        mcpFactory,
+		mlflowClientFactory:     mlflowFactory,
 		dashboardNamespace:      dashboardNamespace,
 		memoryStore:             memStore,
 		rootCAs:                 rootCAs,
@@ -289,6 +296,12 @@ func (app *App) Routes() http.Handler {
 	// Tokens (MaaS)
 	apiRouter.POST(constants.MaaSTokensPath, app.AttachNamespace(app.RequireAccessToService(app.AttachMaaSClient(app.MaaSIssueTokenHandler))))
 	apiRouter.DELETE(constants.MaaSTokensPath, app.AttachNamespace(app.RequireAccessToService(app.AttachMaaSClient(app.MaaSRevokeAllTokensHandler))))
+
+	// MLFlow Prompt Registry API routes
+	apiRouter.GET(constants.MLFlowPromptsPath, app.AttachMLFlowClient(app.MLFlowListPromptsHandler))
+	apiRouter.POST(constants.MLFlowPromptsPath, app.AttachMLFlowClient(app.MLFlowRegisterPromptHandler))
+	apiRouter.GET(constants.MLFlowPromptPath, app.AttachMLFlowClient(app.MLFlowLoadPromptHandler))
+	apiRouter.GET(constants.MLFlowPromptVersionsPath, app.AttachMLFlowClient(app.MLFlowListPromptVersionsHandler))
 
 	// Guardrails API route - namespace-specific
 	// Returns status of the "custom-guardrails" CR from the specified namespace
